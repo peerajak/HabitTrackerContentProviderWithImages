@@ -1,0 +1,10 @@
+Food consumption habit
+
+In this db, everytime a person name "NAME" is eating, the db track how many dangerous 
+
+- Table consist of 
+- String Name_tracking_person
+- Integer TransFatAmount in miligram
+- Integer Drink after food. COFFEE, TEA or NONE of coffe or tea
+- String Food Description
+

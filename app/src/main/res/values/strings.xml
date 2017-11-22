@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">HabitTracker</string>
+
+    <string name="COFFEE">COFFEE</string>
+    <string name="TEA">TEA</string>
+    <string name="NONE">NONE</string>
+
+
+    <string-array name="drinks_array">
+        <item>NONE</item>
+        <item>COFFEE</item>
+        <item>TEA</item>
+    </string-array>
+
+</resources>
