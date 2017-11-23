@@ -24,6 +24,8 @@ public final class MealContact {
         public static final String COLUMN_MEAL_DRINKS = "drinks";
         public static final String COLUMN_MEAL_DESC = "description";
         public static final String COLUMN_MEAL_IMAGE = "photo";
+        public static final String COLUMN_MEAL_LATITUDE = "latitude";
+        public static final String COLUMN_MEAL_LONGITUDE = "longitude";
 
         public static final int DRINK_COFFEE = 1;
         public static final int DRINK_TEA = 2;

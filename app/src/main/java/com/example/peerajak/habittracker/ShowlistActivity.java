@@ -19,6 +19,8 @@ public class ShowlistActivity extends AppCompatActivity implements LoaderManager
             MealEntry.COLUMN_MEAL_TRANS,
             MealEntry.COLUMN_MEAL_DRINKS,
             MealEntry.COLUMN_MEAL_DESC,
+            MealEntry.COLUMN_MEAL_LATITUDE,
+            MealEntry.COLUMN_MEAL_LONGITUDE,
             MealEntry.COLUMN_MEAL_IMAGE
     };
     @Override

@@ -28,6 +28,8 @@ public class MealDbhelper extends SQLiteOpenHelper {
                     MealEntry.COLUMN_MEAL_TRANS + " INTEGER NOT NULL, "+
                     MealEntry.COLUMN_MEAL_DRINKS + " INTEGER NOT NULL DEFAULT 0, "+
                     MealEntry.COLUMN_MEAL_DESC + " TEXT,"+
+                    MealEntry.COLUMN_MEAL_LATITUDE + " DOUBLE,"+
+                    MealEntry.COLUMN_MEAL_LONGITUDE + " DOUBLE,"+
                     MealEntry.COLUMN_MEAL_IMAGE + " TEXT);";
             db.execSQL(sqlCreatePetsTable);
         }
@@ -44,6 +46,8 @@ public class MealDbhelper extends SQLiteOpenHelper {
                     MealEntry.COLUMN_MEAL_TRANS,
                     MealEntry.COLUMN_MEAL_DRINKS,
                     MealEntry.COLUMN_MEAL_DESC,
+                    MealEntry.COLUMN_MEAL_LATITUDE,
+                    MealEntry.COLUMN_MEAL_LONGITUDE,
                     MealEntry.COLUMN_MEAL_IMAGE
             };
             SQLiteDatabase db = getReadableDatabase();

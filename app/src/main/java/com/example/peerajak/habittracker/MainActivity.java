@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -33,11 +34,28 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity  {
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
+import org.w3c.dom.Text;
+
+
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener , LocationListener {
     MealDbhelper mDbHelper;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     String mCurrentPhotoPath;
+
+    double mLatitude=0;
+    double mLongitude=0;
+
+    private GoogleApiClient googleApiClient;
+    Location mCurrentLocation=null;
+
 
     ImageView mImageView;
     EditText mNameEditText;
@@ -68,9 +86,18 @@ public class MainActivity extends AppCompatActivity  {
                 startActivity(showIntent);
             }
         });
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+
+
     }
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intentdata) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intentdata)  {
         Log.i("MainActivity", "onActivityResult");
         if (requestCode == REQUEST_IMAGE_CAPTURE ){
             Log.i("MainActivity", "ImageRequest:"+resultCode);
@@ -98,7 +125,77 @@ public class MainActivity extends AppCompatActivity  {
             }
         }
     }
-    public static  Bitmap crupAndScale (Bitmap source,int scale){
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.i("MainActivity","onStart");
+        googleApiClient.connect();
+        if( googleApiClient.isConnected())
+        {
+           Toast.makeText(this,"google Location API connected",Toast.LENGTH_SHORT).show();
+            Log.i("MainActivity","google Location API connected");
+        }else{
+            Log.i("MainActivity","google Location API NOT connected");
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.i("MainActivity","onStop");
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            googleApiClient.disconnect();
+        }
+    }
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.i("MainActivity","onConnected");
+        LocationAvailability locationAvailability = LocationServices.FusedLocationApi.getLocationAvailability(googleApiClient);
+
+        if (locationAvailability.isLocationAvailable()) {
+            // Call Location Services
+            LocationRequest locationRequest = new LocationRequest()
+                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                    .setInterval(1000);
+            Log.i("MainActivity","onConnected2");
+            //if(locationRequest!=null)
+            try {
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            }catch (Exception e){
+                Log.e("MainActivity", "Error in onConnected.  "+e.getMessage());
+            }
+            Log.i("MainActivity","onConnected3");
+        } else {
+            // Do something when Location Provider not available
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.i("MainActivity","OnLocationChanged");
+        TextView locationStatus = (TextView) findViewById(R.id.location_status);
+        locationStatus.setText("Status: CONNECTED");
+        mCurrentLocation = location;
+        mLatitude = mCurrentLocation.getLatitude();
+        mLongitude = mCurrentLocation.getLongitude();
+        TextView latitude_text = (TextView) findViewById(R.id.latitude);
+        latitude_text.setText("" +mLatitude);
+        TextView longitude_text = (TextView) findViewById(R.id.longitude);
+        longitude_text.setText("" + mLongitude);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    public static  Bitmap crupAndScale (Bitmap source, int scale){
         int factor = source.getHeight() <= source.getWidth() ? source.getHeight(): source.getWidth();
         int longer = source.getHeight() >= source.getWidth() ? source.getHeight(): source.getWidth();
         int x = source.getHeight() >= source.getWidth() ?0:(longer-factor)/2;
@@ -184,6 +281,7 @@ public class MainActivity extends AppCompatActivity  {
         String desc = mDescEditText.getText().toString();
         String transfat_str = mTransEditText.getText().toString();
 
+
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(transfat_str)){
             return;
         }
@@ -196,6 +294,8 @@ public class MainActivity extends AppCompatActivity  {
         values.put(MealEntry.COLUMN_MEAL_DESC,desc.trim());
         values.put(MealEntry.COLUMN_MEAL_DRINKS,mDrink);
         values.put(MealEntry.COLUMN_MEAL_TRANS,transfat);
+        values.put(MealEntry.COLUMN_MEAL_LATITUDE,mLatitude);
+        values.put(MealEntry.COLUMN_MEAL_LONGITUDE,mLongitude);
         values.put(MealEntry.COLUMN_MEAL_IMAGE,mCurrentPhotoPath);
 
         Uri newUri = getContentResolver().insert(MealEntry.CONTENT_URI, values);
@@ -207,6 +307,21 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    public void getGPSclicked(View view){
+
+         if(mCurrentLocation != null) {
+             mLatitude = mCurrentLocation.getLatitude();
+             mLongitude = mCurrentLocation.getLongitude();
+             TextView latitude_text = (TextView) findViewById(R.id.latitude);
+             latitude_text.setText("" +mLatitude);
+             TextView longitude_text = (TextView) findViewById(R.id.longitude);
+             longitude_text.setText("" + mLongitude);
+         }
+    }
+
+    public void getMap(View view){
+
+    }
     public static void addImageToGallery(final String filePath, final Context context) {
 
         ContentValues values = new ContentValues();

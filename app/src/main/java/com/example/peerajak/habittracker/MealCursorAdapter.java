@@ -63,12 +63,16 @@ public class MealCursorAdapter extends CursorAdapter {
         String name_meal = cursor.getString(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_NAME));
         String meal_desc = cursor.getString(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_DESC));
         String image_path = cursor.getString(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_IMAGE));
+        double latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_LATITUDE));
+        double longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_LONGITUDE));
         if (TextUtils.isEmpty(meal_desc)) {
             meal_desc = "No Description";
         }
         holder.name_txtview.setText(name_meal);
         holder.desc_txtview.setText(meal_desc);
-        File file = new File(image_path);
+        holder.latitude_text.setText(""+latitude);
+        holder.longitude_text.setText(""+longitude);
+
         /*try {
             // TODO I will set OnClickListener where, if the list item clicked, the full size image will show up
             // TODO two lines below will do that.
@@ -82,22 +86,28 @@ public class MealCursorAdapter extends CursorAdapter {
         } catch (Exception e) {
             Log.e("ShowlistActivity","Create bitmap exception");
         }*/
-
-        Uri uri = Uri.fromFile(file);
-        Glide.with(context)
-                .load(uri) // Uri of the picture
-                .into(holder.image_imgview);
+        Log.i("MainActivity","image_path="+image_path);
+        if(image_path!=null) {
+            File file = new File(image_path);
+            Uri uri = Uri.fromFile(file);
+            Glide.with(context)
+                    .load(uri) // Uri of the picture
+                    .into(holder.image_imgview);
+        }
     }
 
     static class ViewHolderItem{
        TextView name_txtview;
        TextView desc_txtview;
        ImageView image_imgview;
-
+       TextView latitude_text;
+       TextView longitude_text;
        public ViewHolderItem(View convertView){
            name_txtview = (TextView) convertView.findViewById(R.id.name);
            desc_txtview = (TextView) convertView.findViewById(R.id.description);
            image_imgview = (ImageView) convertView.findViewById(R.id.item_image);
+           latitude_text = (TextView) convertView.findViewById(R.id.out_latitude);
+           longitude_text = (TextView) convertView.findViewById(R.id.out_longitude);
 
        }
     }
