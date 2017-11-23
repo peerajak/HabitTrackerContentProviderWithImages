@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 import com.example.peerajak.habittracker.data.MealContact.MealEntry;
 import com.example.peerajak.habittracker.data.MealContact;
 
@@ -34,7 +36,14 @@ public class MealCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.list_item,parent,false);
+        //return LayoutInflater.from(context).inflate(R.layout.list_item,parent,false);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.list_item, parent ,false);
+
+        ViewHolderItem holder = new ViewHolderItem(view);
+        view.setTag(holder);
+
+        return view;
     }
 
     /**
@@ -49,20 +58,18 @@ public class MealCursorAdapter extends CursorAdapter {
      */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView name_txtview = (TextView) view.findViewById(R.id.name);
-        TextView breed_txtview = (TextView) view.findViewById(R.id.description);
-        ImageView image_imgview = (ImageView) view.findViewById(R.id.item_image);
+        ViewHolderItem holder = (ViewHolderItem) view.getTag();
 
-        String name_pet = cursor.getString(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_NAME));
-        String breed_pet = cursor.getString(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_DESC));
+        String name_meal = cursor.getString(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_NAME));
+        String meal_desc = cursor.getString(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_DESC));
         String image_path = cursor.getString(cursor.getColumnIndexOrThrow(MealEntry.COLUMN_MEAL_IMAGE));
-        if (TextUtils.isEmpty(breed_pet)) {
-            breed_pet = "No Description";
+        if (TextUtils.isEmpty(meal_desc)) {
+            meal_desc = "No Description";
         }
-        name_txtview.setText(name_pet);
-        breed_txtview.setText(breed_pet);
+        holder.name_txtview.setText(name_meal);
+        holder.desc_txtview.setText(meal_desc);
         File file = new File(image_path);
-        try {
+        /*try {
             // TODO I will set OnClickListener where, if the list item clicked, the full size image will show up
             // TODO two lines below will do that.
             //Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(file));
@@ -71,9 +78,27 @@ public class MealCursorAdapter extends CursorAdapter {
                     BitmapFactory.decodeFile(file.getAbsolutePath()),
                     THUMBSIZE,
                     THUMBSIZE);
-            image_imgview.setImageBitmap(crupAndScale(thumbImage,150));
+            holder.image_imgview.setImageBitmap(thumbImage);
         } catch (Exception e) {
             Log.e("ShowlistActivity","Create bitmap exception");
-        }
+        }*/
+
+        Uri uri = Uri.fromFile(file);
+        Glide.with(context)
+                .load(uri) // Uri of the picture
+                .into(holder.image_imgview);
+    }
+
+    static class ViewHolderItem{
+       TextView name_txtview;
+       TextView desc_txtview;
+       ImageView image_imgview;
+
+       public ViewHolderItem(View convertView){
+           name_txtview = (TextView) convertView.findViewById(R.id.name);
+           desc_txtview = (TextView) convertView.findViewById(R.id.description);
+           image_imgview = (ImageView) convertView.findViewById(R.id.item_image);
+
+       }
     }
 }
